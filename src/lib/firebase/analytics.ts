@@ -1,0 +1,2 @@
+import { firebaseApp,firebaseConfigured } from "@/lib/firebase/client";
+export async function getFirebaseAnalytics(){if(typeof window==="undefined"||!firebaseConfigured||!firebaseApp)return null;const{getAnalytics,isSupported}=await import("firebase/analytics");return await isSupported()?getAnalytics(firebaseApp):null}
