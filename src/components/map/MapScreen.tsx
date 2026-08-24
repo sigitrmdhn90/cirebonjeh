@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DesktopSidebar } from "@/components/sidebar/DesktopSidebar";
 import { FilterPanel, filterCategories, type DesktopFilters } from "@/components/sidebar/FilterPanel";
 import { PlaceQuickDetail } from "@/components/place/PlaceQuickDetail";
-import { places } from "@/data/places";
+import { usePublicPlaces } from "@/lib/usePublicPlaces";
 import { categoryById } from "@/data/categories";
 import { distanceInKm, type Coordinates } from "@/lib/distance";
 import { getPlaceOpenStatus } from "@/lib/openingHours";
@@ -13,6 +13,7 @@ import { getPlaceOpenStatus } from "@/lib/openingHours";
 const FoodMap = dynamic(() => import("./FoodMap"), { ssr: false, loading: () => <div className="map-canvas skeleton" aria-label="Memuat peta" /> });
 
 export function MapScreen() {
+  const places = usePublicPlaces();
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<DesktopFilters>({ availability: "all", selectedCategoryIds: [], nearMeEnabled: false, selectedRegency: null, selectedDistrict: null });
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
@@ -32,8 +33,8 @@ export function MapScreen() {
     return matchesQuery && matchesAvailability && matchesCategory && matchesRegency && matchesDistrict;
     });
     return filters.nearMeEnabled && userLocation ? [...filtered].sort((a, b) => distanceInKm(userLocation, a) - distanceInKm(userLocation, b)) : filtered;
-  }, [query, filters, userLocation]);
-  const selectedPlace = useMemo(() => places.find((place) => place.id === selectedPlaceId) ?? null, [selectedPlaceId]);
+  }, [query, filters, userLocation, places]);
+  const selectedPlace = useMemo(() => places.find((place) => place.id === selectedPlaceId) ?? null, [selectedPlaceId, places]);
   const selectPlace = useCallback((id: string) => setSelectedPlaceId(id), []);
   const toggleNearMe = useCallback(() => {
     if (filters.nearMeEnabled) { setFilters((current) => ({ ...current, nearMeEnabled: false })); return; }
@@ -47,7 +48,7 @@ export function MapScreen() {
   useEffect(() => {
     if (!selectedPlaceId) return;
     cardRefs.current[selectedPlaceId]?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [selectedPlaceId]);
+  }, [selectedPlaceId, places]);
   useEffect(() => { if (!filterToast) return; const timer = window.setTimeout(() => setFilterToast(""), 3000); return () => window.clearTimeout(timer); }, [filterToast]);
   return <div className="map-frame">
     <DesktopSidebar places={visible} query={query} onQueryChange={setQuery} filters={filters} onFiltersChange={setFilters} onToggleNearMe={toggleNearMe} selectedPlaceId={selectedPlaceId} onSelectPlace={selectPlace} cardRefs={cardRefs} />

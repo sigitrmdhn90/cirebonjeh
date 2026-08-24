@@ -1,0 +1,2 @@
+import { SubmissionList } from "@/components/admin/SubmissionList";
+export default function SubmissionsPage(){return <div className="admin-content"><div className="admin-page-head"><div><h1>Pendaftaran UMKM</h1><p>Kelola pengajuan UMKM yang masuk.</p></div></div><SubmissionList/></div>}

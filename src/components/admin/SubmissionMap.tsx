@@ -1,0 +1,4 @@
+"use client";
+import L from "leaflet";import {MapContainer,Marker,TileLayer} from "react-leaflet";import {useAppTheme} from "@/components/theme/ThemeProvider";
+const icon=L.divIcon({className:"add-location-icon",html:"<span></span>",iconSize:[26,26],iconAnchor:[13,13]});
+export default function SubmissionMap({lat,lng}:{lat:number;lng:number}){const{theme}=useAppTheme();return <div className="admin-mini-map"><MapContainer center={[lat,lng]} zoom={16} scrollWheelZoom={false}><TileLayer attribution='&copy; OpenStreetMap contributors &copy; CARTO' url={`https://{s}.basemaps.cartocdn.com/${theme==="dark"?"dark_all":"light_all"}/{z}/{x}/{y}{r}.png`}/><Marker position={[lat,lng]} icon={icon}/></MapContainer></div>}

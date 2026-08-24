@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "latest",
+    "firebase": "^12.18.0",
     "leaflet": "latest",
     "lucide-react": "latest",
     "next": "latest",

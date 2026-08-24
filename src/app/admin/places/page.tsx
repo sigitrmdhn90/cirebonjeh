@@ -1,0 +1,2 @@
+import { PlaceTable } from "@/components/admin/PlaceTable";
+export default function AdminPlacesPage(){return <div className="admin-content"><div className="admin-page-head"><div><h1>Data UMKM</h1><p>Kelola UMKM yang sudah dipublikasikan.</p></div></div><PlaceTable/></div>}

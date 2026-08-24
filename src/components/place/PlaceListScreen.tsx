@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { CategoryFilter } from "@/components/filter/CategoryFilter";
 import { SearchBar } from "@/components/filter/SearchBar";
 import { PlaceCard } from "@/components/place/PlaceCard";
-import { places } from "@/data/places";
+import { usePublicPlaces } from "@/lib/usePublicPlaces";
 import { distanceInKm, type Coordinates } from "@/lib/distance";
 import { getPlaceOpenStatus } from "@/lib/openingHours";
 
 export function PlaceListScreen() {
+  const places = usePublicPlaces();
   const [query, setQuery] = useState(""); const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true); const [location, setLocation] = useState<Coordinates | null>(null);
   useEffect(() => { const timer = window.setTimeout(() => setLoading(false), 450); navigator.geolocation?.getCurrentPosition(({ coords }) => setLocation({ latitude: coords.latitude, longitude: coords.longitude }), () => undefined, { timeout: 4000 }); return () => window.clearTimeout(timer); }, []);
@@ -24,7 +25,7 @@ export function PlaceListScreen() {
     if (filter === "rating") return result.sort((a, b) => b.rating - a.rating);
     if (filter === "cheapest") return result.sort((a, b) => (a.priceMin ?? Infinity) - (b.priceMin ?? Infinity));
     return result;
-  }, [query, filter, location]);
+  }, [query, filter, location, places]);
   return <main className="list-content">
     <div className="page-intro"><h1>Mau jajan apa?</h1><p>Temukan rasa enak dari tetangga sendiri.</p></div>
     <SearchBar value={query} onChange={setQuery} /><CategoryFilter value={filter} onChange={setFilter} />

@@ -1,0 +1,8 @@
+"use client";
+import { useEffect,useMemo,useState } from "react";
+import { subscribePlaces,subscribeSubmissions } from "@/lib/adminData";
+import type { AdminSubmission } from "@/types/admin";
+import type { Place } from "@/types/place";
+import { SubmissionList } from "./SubmissionList";
+function isToday(value:unknown){if(!value)return false;const d=typeof value==="object"&&value!==null&&"toDate" in value?(value as {toDate:()=>Date}).toDate():new Date(String(value));const now=new Date();return d.toDateString()===now.toDateString()}
+export function AdminDashboard(){const [subs,setSubs]=useState<AdminSubmission[]>([]);const [places,setPlaces]=useState<Place[]>([]);useEffect(()=>{const a=subscribeSubmissions(setSubs),b=subscribePlaces(setPlaces);return()=>{a();b()}},[]);const stats=useMemo(()=>[{l:"Total UMKM",v:places.length},{l:"UMKM Aktif",v:places.filter(p=>p.status==="active").length},{l:"Pending",v:subs.filter(s=>s.status==="pending").length},{l:"Reviewing",v:subs.filter(s=>s.status==="reviewing").length},{l:"Perlu Revisi",v:subs.filter(s=>s.status==="revision_required").length},{l:"Approved Hari Ini",v:subs.filter(s=>s.status==="approved"&&isToday(s.approvedAt)).length}], [subs,places]);return <div className="admin-content"><div className="admin-page-head"><div><h1>Dashboard</h1><p>Ringkasan operasional UMKM Cirebon.</p></div></div><div className="admin-summary">{stats.map(x=><article key={x.l}><span>{x.l}</span><strong>{x.v.toLocaleString("id-ID")}</strong></article>)}</div><section className="admin-section"><div className="admin-section-head"><h2>Pendaftaran Terbaru</h2></div><SubmissionList limit={6}/></section></div>}

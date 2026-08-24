@@ -27,6 +27,8 @@ export interface Place {
   facebook?: string;
   priceMin?: number;
   priceMax?: number;
+  serviceTypes?: string[];
+  halalStatus?: "halal" | "non_halal" | "unknown";
   openingHours: OpeningHours;
   rating: number;
   totalReviews: number;

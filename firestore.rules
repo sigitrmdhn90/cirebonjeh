@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn(){ return request.auth != null; }
+    function adminDoc(){ return get(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isAdmin(){ return signedIn() && adminDoc().data.active == true && adminDoc().data.role in ['admin','super_admin']; }
+    function isSuperAdmin(){ return isAdmin() && adminDoc().data.role == 'super_admin'; }
+    match /admins/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow write: if isSuperAdmin();
+    }
+    match /places/{placeId} {
+      allow get, list: if resource.data.status == 'active' || isAdmin();
+      allow create, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /place_submissions/{submissionId} {
+      allow create: if request.auth == null
+        && request.resource.data.status == 'pending'
+        && request.resource.data.verificationStatus == 'unverified'
+        && request.resource.data.ownershipStatus == 'unclaimed'
+        && request.resource.data.plan == 'free'
+        && request.resource.data.featured == false
+        && request.resource.data.submissionCode is string
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 3
+        && request.resource.data.latitude is number
+        && request.resource.data.longitude is number
+        && request.resource.data.keys().hasOnly([
+          'name','categoryId','description','priceMin','priceMax','serviceTypes','halalStatus',
+          'province','regencyType','regency','district','village','address','latitude','longitude',
+          'whatsapp','phone','instagram','tiktok','facebook','submitterName','submitterWhatsapp',
+          'openingHours','coverImage','images','status','verificationStatus','ownershipStatus',
+          'plan','featured','createdAt','submissionCode'
+        ]);
+      allow read, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /submission_status_public/{submissionCode} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if request.auth == null
+        && request.resource.data.keys().hasOnly(['submissionCode','name','status','updatedAt'])
+        && request.resource.data.status == 'pending'
+        && request.resource.data.submissionCode == submissionCode;
+      allow update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+  }
+}

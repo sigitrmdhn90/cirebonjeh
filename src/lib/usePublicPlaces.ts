@@ -1,0 +1,3 @@
+"use client";
+import {useEffect,useState} from "react";import {places as seedPlaces}from"@/data/places";import{firebaseConfigured}from"@/lib/firebase/client";import{subscribeActivePlaces}from"@/lib/adminData";import type{Place}from"@/types/place";
+export function usePublicPlaces(){const[places,setPlaces]=useState<Place[]>(firebaseConfigured?[]:seedPlaces);useEffect(()=>firebaseConfigured?subscribeActivePlaces(setPlaces):undefined,[]);return places}
