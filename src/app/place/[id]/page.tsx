@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function PlacePlaceholder() { return <main style={{ minHeight:"100dvh", display:"grid", placeItems:"center", padding:24 }}><div className="empty-state" style={{ maxWidth:420 }}><span>🍜</span><h1 style={{ fontSize:24 }}>Detail tempat</h1><p>Halaman detail masuk Phase 4 dan belum dikerjakan sesuai batas review saat ini.</p><Link className="popup-detail" href="/">Kembali ke Peta</Link></div></main>; }
