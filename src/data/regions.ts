@@ -1,0 +1,6 @@
+export interface RegionDistrict { name:string; villages:string[] }
+export interface RegionOption { type:"city"|"regency"; name:string; districts:RegionDistrict[] }
+export const cirebonRegions:RegionOption[]=[
+ {type:"city",name:"Kota Cirebon",districts:[{name:"Harjamukti",villages:["Argasunya","Harjamukti","Kalijaga","Kecapi","Larangan"]},{name:"Kejaksan",villages:["Kebonbaru","Kejaksan","Kesenden","Sukapura"]},{name:"Kesambi",villages:["Drajat","Karyamulya","Kesambi","Pekiringan","Sunyaragi"]},{name:"Lemahwungkuk",villages:["Kasepuhan","Lemahwungkuk","Panjunan","Pegambiran"]},{name:"Pekalipan",villages:["Jagasatru","Pekalangan","Pekalipan","Pulasaren"]}]},
+ {type:"regency",name:"Kabupaten Cirebon",districts:[{name:"Kedawung",villages:["Kalikoa","Kedawung","Kertawinangun","Sutawinangun"]},{name:"Weru",villages:["Karangsari","Kertasari","Megucilik","Setu Kulon","Weru Kidul"]},{name:"Sumber",villages:["Kaliwadas","Kenanga","Perbutulan","Sumber","Watubelah"]},{name:"Talun",villages:["Cempaka","Kecomberan","Kerandon","Kepongpongan","Wanasaba Kidul"]},{name:"Plumbon",villages:["Bodesari","Gombang","Kebarepan","Plumbon","Purbawinangun"]}]}
+];

@@ -1,0 +1,5 @@
+import type { PlaceSubmissionDraft,PlaceSubmissionPayload } from "@/types/placeSubmission";
+import { normalizeIndonesianPhone } from "@/lib/whatsapp";
+export interface SubmissionResult { reference:string; mode:"dummy" }
+export function buildSubmissionPayload(data:PlaceSubmissionDraft):PlaceSubmissionPayload{return {...data,priceMin:data.priceMin?Number(data.priceMin):undefined,priceMax:data.priceMax?Number(data.priceMax):undefined,whatsapp:normalizeIndonesianPhone(data.whatsapp),phone:normalizeIndonesianPhone(data.phone),submitterWhatsapp:normalizeIndonesianPhone(data.submitterWhatsapp),coverImage:"",images:[],status:"pending",verificationStatus:"unverified",ownershipStatus:"unclaimed",plan:"free",featured:false,createdAt:new Date().toISOString()}}
+export async function submitPlace(data:PlaceSubmissionDraft):Promise<SubmissionResult>{buildSubmissionPayload(data);await new Promise(r=>window.setTimeout(r,650));const d=new Date();const date=`${String(d.getFullYear()).slice(-2)}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;return {reference:`UMKM-${date}-${Math.floor(10000+Math.random()*90000)}`,mode:"dummy"}}

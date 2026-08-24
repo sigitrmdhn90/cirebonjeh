@@ -1,0 +1,2 @@
+export function normalizeIndonesianPhone(value:string):string { const digits=value.replace(/\D/g,""); if(!digits)return ""; if(digits.startsWith("62"))return digits; if(digits.startsWith("0"))return `62${digits.slice(1)}`; return `62${digits}` }
+export function isValidIndonesianPhone(value:string):boolean { return /^62\d{8,13}$/.test(normalizeIndonesianPhone(value)) }

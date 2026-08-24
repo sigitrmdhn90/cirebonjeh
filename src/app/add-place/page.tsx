@@ -1,2 +1,2 @@
-import Link from "next/link";
-export default function AddPlacePlaceholder() { return <main style={{ minHeight:"100dvh", display:"grid", placeItems:"center", padding:24 }}><div className="empty-state" style={{ maxWidth:420 }}><span>🏪</span><h1 style={{ fontSize:24 }}>Daftarkan UMKM</h1><p>Form pendaftaran akan hadir pada Phase 5 setelah UI map dan list selesai direview.</p><Link className="popup-detail" href="/">Kembali ke Peta</Link></div></main>; }
+import AddPlaceWizard from "@/components/add-place/AddPlaceWizard";
+export default function AddPlacePage(){return <AddPlaceWizard/>}

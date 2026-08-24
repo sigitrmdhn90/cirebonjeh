@@ -1,0 +1,5 @@
+import type { OpeningHours } from "@/types/place";
+export type HalalStatus = "halal" | "non-halal" | "unknown";
+export interface PlaceSubmissionDraft { name:string; categoryId:string; description:string; priceMin:string; priceMax:string; serviceTypes:string[]; halalStatus:HalalStatus; province:"Jawa Barat"; regencyType:"city"|"regency"; regency:string; district:string; village:string; address:string; latitude:number|null; longitude:number|null; whatsapp:string; phone:string; instagram:string; tiktok:string; facebook:string; submitterName:string; submitterWhatsapp:string; openingHours:OpeningHours }
+export interface PlaceSubmissionPayload extends Omit<PlaceSubmissionDraft,"priceMin"|"priceMax"> { priceMin?:number; priceMax?:number; coverImage:string; images:string[]; status:"pending"; verificationStatus:"unverified"; ownershipStatus:"unclaimed"; plan:"free"; featured:false; createdAt:string }
+export type FieldErrors = Record<string,string>;
