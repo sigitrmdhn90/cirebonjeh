@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Jajan Apa di Cirebon", template: "%s • Jajan Apa di Cirebon" },
+  title: { default: "Jajan Apa ning Cirebon", template: "%s • Jajan Apa ning Cirebon" },
   description: "Temukan kuliner, jajanan, dan UMKM favorit di Kota dan Kabupaten Cirebon.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Jajan Cirebon" },

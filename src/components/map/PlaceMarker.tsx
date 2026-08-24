@@ -19,7 +19,7 @@ function PlaceMarkerComponent({ place, userLocation, selected, onSelect }: { pla
     className: "", iconSize: [48, 48], iconAnchor: [24, 24], popupAnchor: [0, -27],
     html: `<div class="food-marker ${status.isOpen ? "place-marker--open" : "place-marker--closed"}${selected ? " selected" : ""}" style="background:${category.color}22"><span>${category.icon}</span><i class="status-dot ${status.isOpen ? "open-status-dot" : "closed-status-dot"}"></i></div>`,
   });
-  useEffect(() => { if (selected) markerRef.current?.openPopup(); else markerRef.current?.closePopup(); }, [selected]);
+  useEffect(() => { if (selected && window.matchMedia("(min-width:1024px)").matches) markerRef.current?.openPopup(); else markerRef.current?.closePopup(); }, [selected]);
   return <Marker ref={markerRef} position={[place.latitude, place.longitude]} icon={icon} eventHandlers={{ click: () => onSelect(place.id) }}>
     <Popup className="map-popup" closeButton={false}>
       <div className="popup-card">

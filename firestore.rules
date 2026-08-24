@@ -10,9 +10,42 @@ service cloud.firestore {
       allow write: if isSuperAdmin();
     }
     match /places/{placeId} {
+      function validPublicCounterUpdate() {
+        let changed = request.resource.data.diff(resource.data).affectedKeys();
+        return request.auth == null
+          && request.resource.data.views >= 0
+          && request.resource.data.favoriteCount >= 0
+          && request.resource.data.whatsappClicks >= 0
+          && request.resource.data.directionClicks >= 0
+          && (
+            (changed.hasOnly(['views']) && request.resource.data.views == resource.data.views + 1)
+            || (changed.hasOnly(['whatsappClicks']) && request.resource.data.whatsappClicks == resource.data.whatsappClicks + 1)
+            || (changed.hasOnly(['directionClicks']) && request.resource.data.directionClicks == resource.data.directionClicks + 1)
+            || (changed.hasOnly(['favoriteCount']) && (
+              request.resource.data.favoriteCount == resource.data.favoriteCount + 1
+              || request.resource.data.favoriteCount == resource.data.favoriteCount - 1
+            ))
+          );
+      }
       allow get, list: if resource.data.status == 'active' || isAdmin();
-      allow create, update: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || validPublicCounterUpdate();
       allow delete: if isSuperAdmin();
+
+      match /favorites/{visitorId} {
+        allow get: if true;
+        allow list: if false;
+        allow create: if request.auth == null
+          && request.resource.data.keys().hasOnly(['visitorId','createdAt'])
+          && request.resource.data.visitorId == visitorId
+          && getAfter(/databases/$(database)/documents/places/$(placeId)).data.favoriteCount
+            == get(/databases/$(database)/documents/places/$(placeId)).data.favoriteCount + 1;
+        allow delete: if request.auth == null
+          && get(/databases/$(database)/documents/places/$(placeId)).data.favoriteCount > 0
+          && getAfter(/databases/$(database)/documents/places/$(placeId)).data.favoriteCount
+            == get(/databases/$(database)/documents/places/$(placeId)).data.favoriteCount - 1;
+        allow update: if false;
+      }
     }
     match /place_submissions/{submissionId} {
       allow create: if request.auth == null

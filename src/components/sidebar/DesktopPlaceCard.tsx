@@ -18,7 +18,7 @@ export function DesktopPlaceCard({ place, selected, onSelect, cardRef }: { place
       <span className="desktop-card-tags">{category.name} • {preorder ? "Pre-order" : "Siap ambil"}{delivery ? " • Diantar" : ""}</span>
       <span className="desktop-card-price">mulai {formatPrice(place.priceMin)}</span>
       <span className="desktop-card-description">{place.description}</span>
-      <span className="desktop-card-stats"><span><Eye size={12} />{place.views} dilihat</span><span><Heart size={12} />{place.favoriteCount} favorit</span></span>
+      <span className="desktop-card-stats"><span><Eye size={12} />{Number(place.views || 0).toLocaleString("id-ID")} dilihat</span><span><Heart size={12} />{Number(place.favoriteCount || 0).toLocaleString("id-ID")} favorit</span></span>
     </span>
   </button>;
 }

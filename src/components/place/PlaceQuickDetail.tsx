@@ -3,34 +3,33 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Heart, MapPin, MessageCircle, Navigation, Star, X } from "lucide-react";
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { categoryById } from "@/data/categories";
 import { trackEvent } from "@/lib/analytics";
 import { formatPriceRange } from "@/lib/format";
 import { getPlaceOpenStatus } from "@/lib/openingHours";
+import { getFavoriteStatus, toggleFavorite, trackDirectionClick, trackPlaceView, trackWhatsAppClick } from "@/lib/placeAnalytics";
 import type { Place } from "@/types/place";
 
 export function PlaceQuickDetail({ place, onClose }: { place: Place; onClose: () => void }) {
   const category = categoryById[place.categoryId];
   const openStatus = getPlaceOpenStatus(place.openingHours);
-  const favoriteKey = `favorite-place-${place.id}`;
+  const [favorite, setFavorite] = useState(false);
+  const [favoriteBusy, setFavoriteBusy] = useState(false);
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`;
   const whatsappUrl = place.whatsapp ? `https://wa.me/${place.whatsapp}` : undefined;
 
-  const subscribeFavorite = useCallback((onChange: () => void) => {
-    window.addEventListener("storage", onChange);
-    window.addEventListener("favorite-change", onChange);
-    return () => { window.removeEventListener("storage", onChange); window.removeEventListener("favorite-change", onChange); };
-  }, []);
-  const getFavorite = useCallback(() => window.localStorage.getItem(favoriteKey) === "true", [favoriteKey]);
-  const favorite = useSyncExternalStore(subscribeFavorite, getFavorite, () => false);
+  useEffect(() => {
+    trackEvent("place_view", place.id);
+    void trackPlaceView(place.id);
+    void getFavoriteStatus(place.id).then(setFavorite);
+  }, [place.id]);
 
-  useEffect(() => { trackEvent("place_view", place.id); }, [place.id]);
-
-  const toggleFavorite = () => {
-    const next = !favorite;
-    window.localStorage.setItem(favoriteKey, String(next));
-    window.dispatchEvent(new Event("favorite-change"));
+  const handleFavorite = async () => {
+    if (favoriteBusy) return;
+    setFavoriteBusy(true);
+    setFavorite(await toggleFavorite(place.id));
+    setFavoriteBusy(false);
   };
 
   return <aside className="place-detail-panel" aria-label={`Detail ${place.name}`}>
@@ -47,9 +46,9 @@ export function PlaceQuickDetail({ place, onClose }: { place: Place; onClose: ()
       </div>
       <div className="quick-detail-address"><MapPin size={18} /><span><strong>{place.address}</strong><small>{place.district}, {place.regency}</small></span></div>
       <div className="quick-detail-actions">
-        {whatsappUrl && <a className="quick-detail-whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("whatsapp_click", place.id)}><MessageCircle size={18} />Chat WhatsApp</a>}
-        <a className="quick-detail-directions" href={directionsUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("direction_click", place.id)}><Navigation size={18} />Petunjuk Arah</a>
-        <button type="button" className={`quick-detail-favorite ${favorite ? "saved" : ""}`} onClick={toggleFavorite} aria-pressed={favorite}><Heart size={18} fill={favorite ? "currentColor" : "none"} />{favorite ? "Tersimpan" : "Simpan"}</button>
+        {whatsappUrl && <a className="quick-detail-whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer" onClick={() => { trackEvent("whatsapp_click", place.id); trackWhatsAppClick(place.id); }}><MessageCircle size={18} />Chat WhatsApp</a>}
+        <a className="quick-detail-directions" href={directionsUrl} target="_blank" rel="noopener noreferrer" onClick={() => { trackEvent("direction_click", place.id); trackDirectionClick(place.id); }}><Navigation size={18} />Petunjuk Arah</a>
+        <button type="button" className={`quick-detail-favorite ${favorite ? "saved" : ""}`} onClick={() => void handleFavorite()} disabled={favoriteBusy} aria-pressed={favorite}><Heart size={18} fill={favorite ? "currentColor" : "none"} />{favorite ? "Tersimpan" : "Simpan"}</button>
       </div>
       <p className="quick-detail-disclaimer">Pesanan dan pembayaran dilakukan langsung dengan penjual. Platform ini tidak memproses transaksi.</p>
       <Link className="quick-detail-full-link" href={`/place/${place.id}`}>Buka halaman lengkap <ArrowRight size={16} /></Link>

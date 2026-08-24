@@ -50,8 +50,8 @@ export function MapScreen({ places, openStats }: { places: Place[]; openStats: {
   }, [selectedPlaceId, places]);
   useEffect(() => { if (!filterToast) return; const timer = window.setTimeout(() => setFilterToast(""), 3000); return () => window.clearTimeout(timer); }, [filterToast]);
   return <div className="map-frame">
-    <DesktopSidebar places={visible} query={query} onQueryChange={setQuery} filters={filters} onFiltersChange={setFilters} onToggleNearMe={toggleNearMe} selectedPlaceId={selectedPlaceId} onSelectPlace={selectPlace} cardRefs={cardRefs} />
-    <div className="mobile-map-filter"><FilterPanel value={filters} onChange={setFilters} onToggleNearMe={toggleNearMe} resultCount={visible.length} defaultExpanded={false} compact /></div>
+    <DesktopSidebar places={visible} allPlaces={places} query={query} onQueryChange={setQuery} filters={filters} onFiltersChange={setFilters} onToggleNearMe={toggleNearMe} selectedPlaceId={selectedPlaceId} onSelectPlace={selectPlace} cardRefs={cardRefs} />
+    <div className="mobile-map-filter"><FilterPanel value={filters} onChange={setFilters} onToggleNearMe={toggleNearMe} resultCount={visible.length} places={places} resultPlaces={visible} onSelectPlace={selectPlace} defaultExpanded={false} compact /></div>
     <FoodMap places={visible} openCount={openStats.openCount} closedCount={openStats.closedCount} selectedPlaceId={selectedPlaceId} onSelectPlace={selectPlace} userLocation={userLocation} onLocationChange={setUserLocation} />
     {selectedPlace && <PlaceQuickDetail place={selectedPlace} onClose={() => setSelectedPlaceId(null)} />}
     {filterToast && <div className="map-toast filter-toast" role="status">{filterToast}</div>}

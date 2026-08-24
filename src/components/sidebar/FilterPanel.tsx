@@ -2,7 +2,10 @@
 
 import { ChevronDown, Crosshair, Filter, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { places } from "@/data/places";
+import { categoryById } from "@/data/categories";
+import { formatPrice } from "@/lib/format";
+import { getPlaceOpenStatus } from "@/lib/openingHours";
+import type { Place } from "@/types/place";
 
 export interface DesktopFilters {
   availability: "open" | "all";
@@ -32,13 +35,16 @@ interface FilterPanelProps {
   onChange: (value: DesktopFilters) => void;
   onToggleNearMe: () => void;
   resultCount: number;
+  places: Place[];
+  resultPlaces: Place[];
+  onSelectPlace?: (id: string) => void;
   defaultExpanded?: boolean;
   compact?: boolean;
 }
 
-export function FilterPanel({ value, onChange, onToggleNearMe, resultCount, defaultExpanded = true, compact = false }: FilterPanelProps) {
+export function FilterPanel({ value, onChange, onToggleNearMe, resultCount, places, resultPlaces, onSelectPlace, defaultExpanded = true, compact = false }: FilterPanelProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const districts = useMemo(() => value.selectedRegency ? [...new Set(places.filter((place) => place.regency === value.selectedRegency).map((place) => place.district))].sort() : [], [value.selectedRegency]);
+  const districts = useMemo(() => value.selectedRegency ? [...new Set(places.filter((place) => place.regency === value.selectedRegency).map((place) => place.district))].sort() : [], [value.selectedRegency, places]);
   const hasActiveFilters = value.availability === "open" || value.selectedCategoryIds.length > 0 || value.nearMeEnabled || value.selectedRegency !== null || value.selectedDistrict !== null;
   const toggleCategory = (id: string) => onChange({ ...value, selectedCategoryIds: value.selectedCategoryIds.includes(id) ? value.selectedCategoryIds.filter((item) => item !== id) : [...value.selectedCategoryIds, id] });
   const reset = () => onChange({ availability: "all", selectedCategoryIds: [], nearMeEnabled: false, selectedRegency: null, selectedDistrict: null });
@@ -61,7 +67,8 @@ export function FilterPanel({ value, onChange, onToggleNearMe, resultCount, defa
         <label><span>WILAYAH</span><select value={value.selectedRegency ?? ""} onChange={(event) => onChange({ ...value, selectedRegency: event.target.value || null, selectedDistrict: null })}><option value="">Semua wilayah</option><option value="Kota Cirebon">Kota Cirebon</option><option value="Kabupaten Cirebon">Kabupaten Cirebon</option></select></label>
         {value.selectedRegency && <label><span>KECAMATAN</span><select value={value.selectedDistrict ?? ""} onChange={(event) => onChange({ ...value, selectedDistrict: event.target.value || null })}><option value="">Semua kecamatan</option>{districts.map((district) => <option key={district} value={district}>{district}</option>)}</select></label>}
       </div>
-      <div className="filter-result-count">{resultCount} tempat ditemukan</div>
+<div className="filter-result-count">{resultCount} tempat ditemukan</div>
+      {resultPlaces.length > 0 && <div className="filter-place-results" aria-label="Toko hasil filter">{resultPlaces.slice(0, 6).map((place) => { const category = categoryById[place.categoryId]; const status = getPlaceOpenStatus(place.openingHours); return <button type="button" key={place.id} onClick={() => { onSelectPlace?.(place.id); setExpanded(false); }}><span className="filter-place-thumb" style={{ backgroundImage: `url("${place.coverImage}")` }} aria-hidden>{category?.icon}</span><span className="filter-place-copy"><small className={status.isOpen ? "is-open" : ""}>{status.label}</small><strong>{place.name}</strong><span>{category?.name ?? place.categoryId} · {place.district}</span></span><b>{formatPrice(place.priceMin)}</b></button> })}</div>}
     </div></div>
   </section>;
 }
