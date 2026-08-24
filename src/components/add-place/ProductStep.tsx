@@ -36,7 +36,7 @@ export function ProductStep({ products, onChange, error, onError }: { products: 
   const chooseImage = async (files: FileList | null) => {
     const file = files?.[0]; if (!file || !editing) return;
     if (!/[\/](jpeg|png|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024) { setFormError("Gunakan JPG, PNG, atau WebP maksimal 5 MB."); return; }
-    setEditing({ ...editing, imageFile: await prepareImage(file) }); setFormError("");
+    try { setEditing({ ...editing, imageFile: await prepareImage(file) }); setFormError(""); } catch { setFormError("Foto tidak dapat dibaca. Coba pilih foto lain."); }
   };
   return <div className="product-step">
     <div className="product-step-intro"><div><strong>Produk / Menu</strong><p>Tambahkan produk atau menu yang ingin ditampilkan di halaman usaha Anda.</p></div><button type="button" onClick={openNew} disabled={products.length >= MAX_INITIAL_PRODUCTS}><Plus size={15} /> Tambah Produk</button></div>
