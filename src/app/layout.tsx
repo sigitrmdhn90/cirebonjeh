@@ -12,8 +12,9 @@ export const metadata: Metadata = {
   icons: { apple: "/icons/apple-touch-icon.svg" },
 };
 
-export const viewport: Viewport = { themeColor: "#8F2D4E", width: "device-width", initialScale: 1, viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#C6FF00", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="id" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeInitializationScript }} /></head><body><ThemeProvider>{children}</ThemeProvider><script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'))}` }} /></body></html>;
 }
+
