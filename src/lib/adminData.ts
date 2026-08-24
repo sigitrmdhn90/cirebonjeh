@@ -1,4 +1,4 @@
-import { collection,doc,getDoc,onSnapshot,orderBy,query,runTransaction,serverTimestamp,updateDoc,where,writeBatch,type Unsubscribe } from "firebase/firestore";
+import { collection,doc,getDoc,getDocs,onSnapshot,orderBy,query,runTransaction,serverTimestamp,updateDoc,where,writeBatch,type Unsubscribe } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import type { AdminSubmission,AdminSubmissionStatus } from "@/types/admin";
 import type { Place } from "@/types/place";
@@ -12,3 +12,13 @@ export async function updateReview(id:string,status:AdminSubmissionStatus,note:s
 function slugify(v:string){return v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 export async function approveSubmission(id:string,uid:string):Promise<string>{if(!db)throw new Error("Firebase belum dikonfigurasi");const subRef=doc(db,"place_submissions",id);return runTransaction(db,async tx=>{const snap=await tx.get(subRef);if(!snap.exists())throw new Error("Submission tidak ditemukan");const s=snap.data() as AdminSubmission;if(s.publishedPlaceId)return s.publishedPlaceId;if(s.status==="approved")throw new Error("Submission ini sudah dipublikasikan.");if(!s.name||!s.categoryId||s.latitude==null||s.longitude==null||!s.coverImage)throw new Error("Data submission belum lengkap.");const placeRef=doc(collection(db!,"places"));const privateKeys=new Set(["id","submitterName","submitterWhatsapp","adminNotes","revisionNote","rejectReason","reviewedBy","reviewedAt","approvedBy","approvedAt","publishedPlaceId","status","submissionCode","createdAt"]);const publicData=Object.fromEntries(Object.entries(s).filter(([k])=>!privateKeys.has(k)));tx.set(placeRef,{...publicData,halalStatus:s.halalStatus==="non-halal"?"non_halal":s.halalStatus,slug:`${slugify(s.name)}-${placeRef.id.slice(0,5)}`,status:"active",verificationStatus:"verified",ownershipStatus:"unclaimed",plan:"free",featured:false,featuredUntil:null,rating:0,totalReviews:0,views:0,whatsappClicks:0,directionClicks:0,favoriteCount:0,sourceSubmissionId:id,submissionCode:s.submissionCode,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});tx.set(doc(db!,"submission_status_public",s.submissionCode),{submissionCode:s.submissionCode,name:s.name,status:"approved",publishedPlaceId:placeRef.id,updatedAt:serverTimestamp()});tx.update(subRef,{status:"approved",approvedBy:uid,approvedAt:serverTimestamp(),reviewedBy:uid,reviewedAt:serverTimestamp(),publishedPlaceId:placeRef.id});return placeRef.id})}
 export async function togglePlaceStatus(id:string,status:"active"|"inactive"){if(!db)throw new Error("Firebase belum dikonfigurasi");await updateDoc(doc(db,"places",id),{status,updatedAt:serverTimestamp()})}
+export async function deleteSubmissionPermanently(id:string,submissionCode:string){
+  if(!db)throw new Error("Firebase belum dikonfigurasi");
+  const submissionRef=doc(db,"place_submissions",id);
+  const products=await getDocs(collection(submissionRef,"products"));
+  const batch=writeBatch(db);
+  products.docs.forEach(product=>batch.delete(product.ref));
+  batch.delete(submissionRef);
+  if(submissionCode)batch.delete(doc(db,"submission_status_public",submissionCode));
+  await batch.commit();
+}
