@@ -1,3 +1,3 @@
 import { Check } from "lucide-react";
-const labels=["Usaha","Lokasi","Kontak","Jam","Foto","Review"];
+const labels=["Usaha","Lokasi","Kontak","Jam","Foto","Produk","Review"];
 export function Stepper({current}:{current:number}){return <nav className="add-stepper" aria-label="Tahap pendaftaran">{labels.map((label,i)=><div className={`add-step ${i===current?"active":""} ${i<current?"done":""}`} key={label}><span>{i<current?<Check size={13}/>:i+1}</span><small>{label}</small></div>)}</nav>}
