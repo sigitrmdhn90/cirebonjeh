@@ -38,15 +38,17 @@ export async function submitPlace(data: PlaceSubmissionDraft, cover: File | null
   const payload = buildSubmissionPayload(data);
   const submission = doc(collection(db, "place_submissions"));
   const folder = `cirebonjeh/place-submissions/${submission.id}`;
-  const [coverImage, images, uploadedProducts] = await Promise.all([
-    uploadPlaceImage(cover, folder),
-    Promise.all(gallery.map((file) => uploadPlaceImage(file, folder))),
-    Promise.all(products.map(async (product, order) => ({
+  const coverImage = await uploadPlaceImage(cover, folder);
+  const images: string[] = [];
+  for (const file of gallery) images.push(await uploadPlaceImage(file, folder));
+  const uploadedProducts = [];
+  for (const [order, product] of products.entries()) {
+    uploadedProducts.push({
       product,
       order,
       imageUrl: product.imageFile ? await uploadPlaceImage(product.imageFile, `${folder}/products/${product.id}`) : "",
-    }))),
-  ]);
+    });
+  }
 
   const batch = writeBatch(db);
   batch.set(submission, { ...payload, submissionCode: reference, coverImage, images, createdAt: serverTimestamp() });
