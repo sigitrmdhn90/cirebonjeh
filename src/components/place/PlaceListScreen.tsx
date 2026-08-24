@@ -4,12 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { CategoryFilter } from "@/components/filter/CategoryFilter";
 import { SearchBar } from "@/components/filter/SearchBar";
 import { PlaceCard } from "@/components/place/PlaceCard";
-import { usePublicPlaces } from "@/lib/usePublicPlaces";
+import type { Place } from "@/types/place";
 import { distanceInKm, type Coordinates } from "@/lib/distance";
 import { getPlaceOpenStatus } from "@/lib/openingHours";
 
-export function PlaceListScreen() {
-  const places = usePublicPlaces();
+export function PlaceListScreen({ places }: { places: Place[] }) {
   const [query, setQuery] = useState(""); const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true); const [location, setLocation] = useState<Coordinates | null>(null);
   useEffect(() => { const timer = window.setTimeout(() => setLoading(false), 450); navigator.geolocation?.getCurrentPosition(({ coords }) => setLocation({ latitude: coords.latitude, longitude: coords.longitude }), () => undefined, { timeout: 4000 }); return () => window.clearTimeout(timer); }, []);

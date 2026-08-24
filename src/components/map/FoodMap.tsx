@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type L from "leaflet";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { getPlaceOpenStatus } from "@/lib/openingHours";
+import { useDailyVisits } from "@/hooks/useDailyVisits";
+import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 import type { Coordinates } from "@/lib/distance";
 import type { Place } from "@/types/place";
 import { useAppTheme } from "@/components/theme/ThemeProvider";
@@ -33,13 +34,16 @@ interface FoodMapProps {
   onSelectPlace: (id: string) => void;
   userLocation: Coordinates | null;
   onLocationChange: (location: Coordinates) => void;
+  openCount: number;
+  closedCount: number;
 }
 
-export default function FoodMap({ places, selectedPlaceId, onSelectPlace, userLocation, onLocationChange }: FoodMapProps) {
+export default function FoodMap({ places, selectedPlaceId, onSelectPlace, userLocation, onLocationChange, openCount, closedCount }: FoodMapProps) {
   const { theme } = useAppTheme();
   const mapRef = useRef<L.Map | null>(null);
   const [toast, setToast] = useState("");
-  const openCount = places.filter((place) => getPlaceOpenStatus(place.openingHours).isOpen).length;
+  const { visits } = useDailyVisits();
+  const online = useOnlinePresence();
   const locate = useCallback(() => {
     if (!navigator.geolocation) { setToast("Lokasi tidak dapat diakses."); return; }
     navigator.geolocation.getCurrentPosition(({ coords }) => {
@@ -65,8 +69,8 @@ export default function FoodMap({ places, selectedPlaceId, onSelectPlace, userLo
     </MapContainer>
     <MapControls onLocate={locate} onZoomIn={() => mapRef.current?.zoomIn()} onZoomOut={() => mapRef.current?.zoomOut()} />
     <div className="map-info">
-      <div className="info-pill">👁 1.048 kunjungan&nbsp;&nbsp;•&nbsp;&nbsp;<span className="online-label"><i className="dot online-status-dot" />2 online</span></div>
-      <div className="info-pill legend"><span><i className="dot open-status-dot legend-status-dot" />{openCount} buka sekarang</span><span><i className="dot closed-status-dot" />{places.length - openCount} tutup</span></div>
+      <div className="info-pill">👁 {new Intl.NumberFormat("id-ID").format(visits)} kunjungan&nbsp;&nbsp;•&nbsp;&nbsp;<span className="online-label"><i className="dot online-status-dot" />{online} online</span></div>
+      <div className="info-pill legend"><span><i className="dot open-status-dot legend-status-dot" />{openCount} buka sekarang</span><span><i className="dot closed-status-dot" />{closedCount} tutup</span></div>
     </div>
     {toast && <div className="map-toast" role="status">{toast}</div>}
   </div>;

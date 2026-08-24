@@ -1,0 +1,5 @@
+import{doc,increment,onSnapshot,serverTimestamp,setDoc,type Unsubscribe}from"firebase/firestore";import{db}from"@/lib/firebase/client";
+export const VISIT_SESSION_KEY="cirebonjeh_visit_registered";
+export function jakartaDateKey(date=new Date()){const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(date);const get=(type:string)=>parts.find(p=>p.type===type)?.value||"";return`${get("year")}-${get("month")}-${get("day")}`}
+export async function registerDailyVisit(dateKey:string){if(!db||typeof window==="undefined"||sessionStorage.getItem(VISIT_SESSION_KEY)===dateKey)return;await setDoc(doc(db,"analytics_daily",dateKey),{date:dateKey,visits:increment(1),uniqueSessions:increment(1),updatedAt:serverTimestamp()},{merge:true});sessionStorage.setItem(VISIT_SESSION_KEY,dateKey)}
+export function subscribeDailyVisits(dateKey:string,callback:(visits:number)=>void):Unsubscribe{if(!db){callback(0);return()=>{}}return onSnapshot(doc(db,"analytics_daily",dateKey),snapshot=>callback(snapshot.exists()?Number(snapshot.data().visits)||0:0),()=>callback(0))}

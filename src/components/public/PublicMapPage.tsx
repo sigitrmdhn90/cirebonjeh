@@ -1,0 +1,2 @@
+"use client";import{Header}from"@/components/layout/Header";import{BottomNavigation}from"@/components/layout/BottomNavigation";import{MapScreen}from"@/components/map/MapScreen";import{usePublicPlaces}from"@/lib/usePublicPlaces";import{useOpenPlaceStats}from"@/hooks/useOpenPlaceStats";
+export function PublicMapPage(){const places=usePublicPlaces();const stats=useOpenPlaceStats(places);return <main className="app-shell"><Header openCount={stats.openCount}/><MapScreen places={places} openStats={stats}/><BottomNavigation active="map"/></main>}

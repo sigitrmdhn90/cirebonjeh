@@ -1,0 +1,2 @@
+"use client";import{Header}from"@/components/layout/Header";import{BottomNavigation}from"@/components/layout/BottomNavigation";import{PlaceListScreen}from"@/components/place/PlaceListScreen";import{usePublicPlaces}from"@/lib/usePublicPlaces";import{useOpenPlaceStats}from"@/hooks/useOpenPlaceStats";
+export function PublicListPage(){const places=usePublicPlaces();const stats=useOpenPlaceStats(places);return <div className="list-page"><Header openCount={stats.openCount}/><PlaceListScreen places={places}/><BottomNavigation active="list"/></div>}

@@ -5,15 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DesktopSidebar } from "@/components/sidebar/DesktopSidebar";
 import { FilterPanel, filterCategories, type DesktopFilters } from "@/components/sidebar/FilterPanel";
 import { PlaceQuickDetail } from "@/components/place/PlaceQuickDetail";
-import { usePublicPlaces } from "@/lib/usePublicPlaces";
+import type { Place } from "@/types/place";
 import { categoryById } from "@/data/categories";
 import { distanceInKm, type Coordinates } from "@/lib/distance";
 import { getPlaceOpenStatus } from "@/lib/openingHours";
 
 const FoodMap = dynamic(() => import("./FoodMap"), { ssr: false, loading: () => <div className="map-canvas skeleton" aria-label="Memuat peta" /> });
 
-export function MapScreen() {
-  const places = usePublicPlaces();
+export function MapScreen({ places, openStats }: { places: Place[]; openStats: { openCount:number; closedCount:number } }) {
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<DesktopFilters>({ availability: "all", selectedCategoryIds: [], nearMeEnabled: false, selectedRegency: null, selectedDistrict: null });
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
@@ -53,7 +52,7 @@ export function MapScreen() {
   return <div className="map-frame">
     <DesktopSidebar places={visible} query={query} onQueryChange={setQuery} filters={filters} onFiltersChange={setFilters} onToggleNearMe={toggleNearMe} selectedPlaceId={selectedPlaceId} onSelectPlace={selectPlace} cardRefs={cardRefs} />
     <div className="mobile-map-filter"><FilterPanel value={filters} onChange={setFilters} onToggleNearMe={toggleNearMe} resultCount={visible.length} defaultExpanded={false} compact /></div>
-    <FoodMap places={visible} selectedPlaceId={selectedPlaceId} onSelectPlace={selectPlace} userLocation={userLocation} onLocationChange={setUserLocation} />
+    <FoodMap places={visible} openCount={openStats.openCount} closedCount={openStats.closedCount} selectedPlaceId={selectedPlaceId} onSelectPlace={selectPlace} userLocation={userLocation} onLocationChange={setUserLocation} />
     {selectedPlace && <PlaceQuickDetail place={selectedPlace} onClose={() => setSelectedPlaceId(null)} />}
     {filterToast && <div className="map-toast filter-toast" role="status">{filterToast}</div>}
   </div>;

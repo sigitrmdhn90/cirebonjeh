@@ -2,6 +2,7 @@ import { getApp,getApps,initializeApp,type FirebaseApp } from "firebase/app";
 import { getAuth,type Auth } from "firebase/auth";
 import { getFirestore,type Firestore } from "firebase/firestore";
 import { getStorage,type FirebaseStorage } from "firebase/storage";
+import { getDatabase,type Database } from "firebase/database";
 
 const requiredEnv={
   apiKey:process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,16 +15,18 @@ const requiredEnv={
 
 export const firebaseConfigured=Object.values(requiredEnv).every(Boolean);
 export const missingFirebaseEnv=Object.entries(requiredEnv).filter(([,value])=>!value).map(([key])=>key);
-const firebaseConfig={...requiredEnv,measurementId:process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID};
+const firebaseConfig={...requiredEnv,measurementId:process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,databaseURL:process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL};
 
 export let firebaseApp:FirebaseApp|null=null;
 export let auth:Auth|null=null;
 export let db:Firestore|null=null;
 export let storage:FirebaseStorage|null=null;
+export let realtimeDb:Database|null=null;
 
 if(firebaseConfigured){
   firebaseApp=getApps().length?getApp():initializeApp(firebaseConfig);
   auth=getAuth(firebaseApp);
   db=getFirestore(firebaseApp);
   storage=getStorage(firebaseApp);
+  if(firebaseConfig.databaseURL)realtimeDb=getDatabase(firebaseApp);
 }

@@ -36,7 +36,18 @@ service cloud.firestore {
       allow read, update: if isAdmin();
       allow delete: if isSuperAdmin();
     }
-    match /submission_status_public/{submissionCode} {
+    match /analytics_daily/{dateKey} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['date','visits','uniqueSessions','updatedAt'])
+        && request.resource.data.date == dateKey
+        && request.resource.data.visits == 1
+        && request.resource.data.uniqueSessions == 1;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits','uniqueSessions','updatedAt'])
+        && request.resource.data.date == resource.data.date
+        && request.resource.data.visits == resource.data.visits + 1
+        && request.resource.data.uniqueSessions == resource.data.uniqueSessions + 1;
+      allow delete: if isSuperAdmin();
+    }    match /submission_status_public/{submissionCode} {
       allow get: if true;
       allow list: if false;
       allow create: if request.auth == null

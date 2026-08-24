@@ -1,0 +1,2 @@
+"use client";import{useEffect,useState}from"react";import{startPresence}from"@/lib/presence";
+export function useOnlinePresence(){const[online,setOnline]=useState(0);useEffect(()=>{let stop:(()=>void)|undefined;let active=true;void startPresence(setOnline).then(cleanup=>{if(active)stop=cleanup;else cleanup()}).catch(()=>setOnline(0));return()=>{active=false;stop?.()}},[]);return online}

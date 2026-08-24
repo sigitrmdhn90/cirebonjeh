@@ -1,0 +1,1 @@
+{"rules":{".read":false,".write":false,"presence":{".read":true,"$sessionId":{".write":true,".validate":"newData.hasChildren(['online','lastSeen']) && newData.child('online').isBoolean() && newData.child('lastSeen').isNumber() && (!newData.hasChild('startedAt') || newData.child('startedAt').isNumber())"}}}}
