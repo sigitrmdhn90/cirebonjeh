@@ -60,6 +60,7 @@ export async function submitPlace(data: PlaceSubmissionDraft, cover: File | null
       ...(imageUrl ? { imageUrl } : {}),
       available: product.available,
       bestseller: product.bestseller,
+      preorder: product.preorder,
       order,
       createdAt: serverTimestamp(),
     });

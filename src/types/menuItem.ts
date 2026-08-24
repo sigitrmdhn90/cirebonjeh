@@ -9,6 +9,7 @@ export interface SubmissionProductDraft {
   imageFile: File | null;
   available: boolean;
   bestseller: boolean;
+  preorder: boolean;
   order: number;
 }
 
@@ -20,5 +21,6 @@ export interface SubmissionProductPayload {
   imageUrl?: string;
   available: boolean;
   bestseller: boolean;
+  preorder: boolean;
   order: number;
 }
